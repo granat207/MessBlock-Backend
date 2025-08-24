@@ -44,8 +44,8 @@ forge test
 Clone the repository and build the contracts:
 
 ```bash
-git clone <your-repo-url>
-cd messblock
+git clone https://github.com/granat207/MessBlock-Backend.git
+cd MessBlock-Backend
 forge build
 ```
 
