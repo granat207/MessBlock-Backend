@@ -6,16 +6,16 @@ MessBlock is a decentralized messaging protocol written in Solidity. It provides
 
 The project is structured into three contracts for modularity:
 
-* **MessBlockChats** → Handles private 1-to-1 chats (create chat, send/modify/delete messages).
-* **MessBlockGroups** → Handles group functionalities (create/join/leave groups, send/modify/delete group messages).
+* **MessBlockChats** → Handles private 1-to-1 chats (create chat and send messages).
+* **MessBlockGroups** → Handles group functionalities (create/join/leave groups and send messages).
 * **MessBlock** → Main contract inheriting from `MessBlockChats` and `MessBlockGroups`.
 
 ## 🛠 Features
 
 * Create and manage **private chats**
-* Send, modify, and delete **messages**
+* Send **messages**
 * Create, join, and leave **groups**
-* Send, modify, and delete **group messages**
+* Send  **group messages**
 * Event logging for group creation, deletion, and membership changes
 * Custom errors for precise reverts
 
