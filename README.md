@@ -1,66 +1,60 @@
-## Foundry
+# MessBlock
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+MessBlock is a decentralized messaging protocol written in Solidity. It provides both **private chats** and **group chats** functionality, enabling users to create chats, exchange messages, and manage groups directly on-chain.
 
-Foundry consists of:
+## 📚 Contracts
 
-- **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
-- **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
-- **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
-- **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+The project is structured into three contracts for modularity:
 
-## Documentation
+* **MessBlockChats** → Handles private 1-to-1 chats (create chat, send/modify/delete messages).
+* **MessBlockGroups** → Handles group functionalities (create/join/leave groups, send/modify/delete group messages).
+* **MessBlock** → Main contract inheriting from `MessBlockChats` and `MessBlockGroups`.
 
-https://book.getfoundry.sh/
+## 🛠 Features
 
-## Usage
+* Create and manage **private chats**
+* Send, modify, and delete **messages**
+* Create, join, and leave **groups**
+* Send, modify, and delete **group messages**
+* Event logging for group creation, deletion, and membership changes
+* Custom errors for precise reverts
 
-### Build
+## 🧪 Tests
 
-```shell
-$ forge build
+This project uses **[Foundry](https://book.getfoundry.sh/)** for testing.
+
+Tests are located in:
+
+* `test/MessBlockChats.t.sol`
+* `test/MessBlockGroups.t.sol`
+
+Run tests with:
+
+```bash
+forge test
 ```
 
-### Test
+## ⚙️ Requirements
 
-```shell
-$ forge test
+* [Foundry](https://book.getfoundry.sh/getting-started/installation) installed (`forge`, `cast`)
+* Solidity ^0.8.7
+
+## 🚀 Quick Start
+
+Clone the repository and build the contracts:
+
+```bash
+git clone <your-repo-url>
+cd messblock
+forge build
 ```
 
-### Format
+Run tests:
 
-```shell
-$ forge fmt
+```bash
+forge test
 ```
 
-### Gas Snapshots
+## 📄 License
 
-```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+This project is licensed under the **MIT License**.
