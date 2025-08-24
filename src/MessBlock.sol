@@ -1,29 +1,23 @@
 //SPDX-License-Identifier:MIT
-
-
 pragma solidity ^0.8.7; 
 
 
 contract MessBlock{
-
 
 //*
 //@dev returns the error if User try to create a chat with another User already in the chats.
 //*
 error UserAlreadyInAChat(); 
 
-
 //*
 //@dev returns the error if user try to delete a non existent chat.
 //*
 error UserIsNotInAChat(); 
 
-
 //*
 //@dev returns the error when a user try to create a Group with an already existent name
 //*
 error AlreadyExistAGroupWithThatName();
-
 
 //*
 //@dev returns the error when a user can't join in a group if he is already on that group
@@ -35,24 +29,20 @@ error UserCantJoinAGropWhenHeIsAlreadyIn();
 //*
 error CantSendMessageInTheGroup(); 
 
-
 //*
 //@dev returns the panic error when a group is not deletable
 //*
 error GroupsNotDeletable(); 
-
 
 //*
 //@dev returns the panic error when user try to change the name or the description of the group
 //*
 error ErrorWhenChangingNameAndDescriptionGroup(); 
 
-
 //*
 //@dev returns the error when user try to modify the message in a group
 //*
 error ErrorWhenModifyMessageInGroups(string group_, string messageToModiy, string newMessage); 
-
 
 //
 //@dev returns the error when an user can't delete a chat
@@ -64,24 +54,20 @@ error UserCantDeleteTheChat();
 //*
 error UserCantLeaveGroup(address sender, string name); 
 
-
 //*
 //@dev returns the event when a group is created
 //*
 event GroupCreated(address owner, string name); 
-
 
 //*
 //@dev returns the event when a group is deleted
 //*
 event GroupDeleted(address owner, string name); 
 
-
 //*
 //@dev return the event when a user join a group
 //*
 event UserJoinedGroup(address joiner, string name); 
-
 
 //*
 //@dev returns the struct to be a able to interact with the following functions: joinGroup, createGroup, leaveGroup..
@@ -92,7 +78,6 @@ string description;
 address groupOwner; 
 }
 
-
 //*
 //@dev returns the struct to be able to interact with the following functions: sendMessageInAGroup, modifyGroupMessage, deleteGroupMessage
 //*
@@ -102,7 +87,6 @@ address sender;
 string messages; 
 }
 
-
 //*
 //@dev returns the struct to be able to let user send, modify and delete their messagges. Everything seeing the message and the message sender(so the msg.sender when a transaction is done)
 //*
@@ -110,7 +94,6 @@ struct UserMessagges{
 string message; 
 address messageSender; 
 }
-
 
 //*
 //@dev set the the most important array about the groups to be able to create and delete them
@@ -139,12 +122,12 @@ mapping(string => address[])internal groupsToUsersIn;
 
 
 //With this modifier user can't open a new chat if the new user is already existent in his chats.
-modifier isNotTheUserAlreadyInAChat(address newUser){
+modifier isNotTheUserAlreadyInAChat(address newUser) {
 address[] memory usersChats = addressToChats[msg.sender]; 
 for(uint256 i = 0; i < usersChats.length; i++){
-if(newUser == usersChats[i]){
-revert UserAlreadyInAChat(); 
-}
+	if(newUser == usersChats[i]){
+		revert UserAlreadyInAChat(); 
+	}
 }
 _;
 }
@@ -154,12 +137,13 @@ _;
 modifier isTheUserAlreadyInAChat(address deletedUser){
 bool isInAchat = false; 
 for(uint256 i = 0; i < addressToChats[msg.sender].length; i++){
-if(addressToChats[msg.sender][i] == deletedUser){
-isInAchat = true; 
+	if(addressToChats[msg.sender][i] == deletedUser){
+		isInAchat = true; 
+	}
 }
-}
+
 if(isInAchat == false){
-revert UserIsNotInAChat(); 
+	revert UserIsNotInAChat(); 
 }
 _;
 }
@@ -178,18 +162,20 @@ addressToChats[msg.sender].push(newUser);
 //*
 //@dev sets the function to be able to deleteChats.
 //*
-function deleteChat(address deletedUser)public{ 
+function deleteChat(address deletedUser) public { 
 bool txWentTrue = false; 
 for(uint256 i = 0; i < addressToChats[msg.sender].length; i++){
-if(keccak256(abi.encodePacked(addressToChats[msg.sender][i])) == keccak256(abi.encodePacked(deletedUser))){
-uint256 getLastElement = addressToChats[msg.sender].length - 1; 
-addressToChats[msg.sender][i] = addressToChats[msg.sender][getLastElement]; 
-txWentTrue = true; 
-}
+	if(keccak256(abi.encodePacked(addressToChats[msg.sender][i])) == keccak256(abi.encodePacked(deletedUser))){
+		uint256 getLastElement = addressToChats[msg.sender].length - 1; 
+		addressToChats[msg.sender][i] = addressToChats[msg.sender][getLastElement]; 
+		txWentTrue = true; 
+	} 
+
 addressToChats[msg.sender].pop(); 
 }
+
 if(!txWentTrue){
-revert UserCantDeleteTheChat(); 
+	revert UserCantDeleteTheChat(); 
 }
 }
 
@@ -215,13 +201,14 @@ addressToUserMessagess[user][msg.sender].push(newUserMessage);
 function modifyMessage(address user, string memory messageToModify, string memory newMessage)public{
 bool txWentTrue = false; 
 for(uint256 i = 0; i < addressToUserMessagess[msg.sender][user].length; i++){
-if(keccak256(abi.encodePacked(addressToUserMessagess[msg.sender][user][i].message)) == keccak256(abi.encodePacked(messageToModify))){
-addressToUserMessagess[msg.sender][user][i].message = newMessage; 
-txWentTrue = true; 
+	if(keccak256(abi.encodePacked(addressToUserMessagess[msg.sender][user][i].message)) == keccak256(abi.encodePacked(messageToModify))){
+		addressToUserMessagess[msg.sender][user][i].message = newMessage; 
+		txWentTrue = true; 
+	}
 }
-}
+
 if(txWentTrue == false){
-revert("Cant modify the message"); 
+	revert("Cant modify the message"); 
 }
 }
 
@@ -232,15 +219,16 @@ revert("Cant modify the message");
 function deleteMessage(address user, string memory messageToDelete)public{
 bool txWentTrue = false; 
 for(uint256 i = 0; i < addressToUserMessagess[msg.sender][user].length; i++){
-if(keccak256(abi.encodePacked(addressToUserMessagess[msg.sender][user][i].message)) == keccak256(abi.encodePacked(messageToDelete))){
-uint256 lastIndex = addressToUserMessagess[msg.sender][user].length - 1; 
-addressToUserMessagess[msg.sender][user][i] = addressToUserMessagess[msg.sender][user][lastIndex]; 
-txWentTrue = true; 
-}
+	if(keccak256(abi.encodePacked(addressToUserMessagess[msg.sender][user][i].message)) == keccak256(abi.encodePacked(messageToDelete))){
+		uint256 lastIndex = addressToUserMessagess[msg.sender][user].length - 1; 
+		addressToUserMessagess[msg.sender][user][i] = addressToUserMessagess[msg.sender][user][lastIndex]; 
+		txWentTrue = true; 
+	}
+
 addressToUserMessagess[msg.sender][user].pop(); 
 }
 if(txWentTrue == false){
-revert("Cant delete the message"); 
+	revert("Cant delete the message"); 
 }
 }
 
@@ -251,10 +239,11 @@ revert("Cant delete the message");
 //*
 function createGroup(string memory name, string memory description)public{
 for(uint256 a = 0; a < groups.length; a++){
-if(keccak256(abi.encodePacked(groups[a].name)) == keccak256(abi.encodePacked(name))){
-revert AlreadyExistAGroupWithThatName(); 
+	if(keccak256(abi.encodePacked(groups[a].name)) == keccak256(abi.encodePacked(name))){
+		revert AlreadyExistAGroupWithThatName(); 
+	}
 }
-}
+
 Group memory newGroup = Group({
 name: name, 
 description: description, 
@@ -273,24 +262,26 @@ emit GroupCreated(msg.sender, name);
 function changeGroupNameAndDescription(string memory oldName, string memory _newName, string memory _newDescription)public{
 bool success = false; 
 for(uint256 i = 0; i < groups.length; i++){
-for(uint256 a = 0; a < addressToGroupsJoined[msg.sender].length; a++){
-require(keccak256(abi.encodePacked(groups[i].groupOwner)) == keccak256(abi.encodePacked(msg.sender)), "Sender is not the owner of the group"); 
-if(keccak256(abi.encodePacked(groups[i].name)) == keccak256(abi.encodePacked(oldName))){
-Group memory groupWithNewDescriptionAndName = Group({
-name: _newName, 
-description: _newDescription,
-groupOwner: msg.sender
-}); 
-groups[i] = groupWithNewDescriptionAndName; 
-addressToGroupsJoined[msg.sender][a] = groupWithNewDescriptionAndName; 
-delete groupsToUsersIn[oldName]; 
-groupsToUsersIn[_newName].push(msg.sender); 
-success = true; 
+	for(uint256 a = 0; a < addressToGroupsJoined[msg.sender].length; a++){		
+		require(keccak256(abi.encodePacked(groups[i].groupOwner)) == keccak256(abi.encodePacked(msg.sender)), "Sender is not the owner of the group"); 
+		if(keccak256(abi.encodePacked(groups[i].name)) == keccak256(abi.encodePacked(oldName))){
+			Group memory groupWithNewDescriptionAndName = Group({
+			name: _newName, 
+			description: _newDescription,
+			groupOwner: msg.sender
+		}); 
+
+		groups[i] = groupWithNewDescriptionAndName; 
+		addressToGroupsJoined[msg.sender][a] = groupWithNewDescriptionAndName; 
+		delete groupsToUsersIn[oldName]; 
+		groupsToUsersIn[_newName].push(msg.sender); 
+		success = true; 
+		}
+	}
 }
-}
-}
+
 if(success == false){
-revert("Error when changing the groupName and groupDescription"); 
+	revert("Error when changing the groupName and groupDescription"); 
 }
 }
 
@@ -300,15 +291,15 @@ revert("Error when changing the groupName and groupDescription");
 //*
 function deleteGroup(string memory groupToDelete)public{
 for (uint256 a = 0; a < groups.length; a++) {
-require(keccak256(abi.encodePacked(groups[a].groupOwner)) == keccak256(abi.encodePacked(msg.sender)), "Sender is not the creator of the group"); 
-if (keccak256(abi.encodePacked(groups[a].name)) == keccak256(abi.encodePacked(groupToDelete))){
-leaveGroup(groupToDelete);
-delete groups[a];
-groups[a] = groups[groups.length - 1];
-groups.pop();
-delete groupsToUsersIn[groupToDelete]; 
-return; 
-}
+	require(keccak256(abi.encodePacked(groups[a].groupOwner)) == keccak256(abi.encodePacked(msg.sender)), "Sender is not the creator of the group"); 
+	if (keccak256(abi.encodePacked(groups[a].name)) == keccak256(abi.encodePacked(groupToDelete))){
+		leaveGroup(groupToDelete);
+		delete groups[a];
+		groups[a] = groups[groups.length - 1];
+		groups.pop();
+		delete groupsToUsersIn[groupToDelete]; 
+		return; 
+	}
 }
 revert GroupsNotDeletable();
 }
@@ -321,26 +312,28 @@ function joinGroup(string memory name, string memory description)public{
 bool groupExists = false;
 Group memory groupToJoin; 
 for (uint256 i = 0; i < groups.length; i++) {
-if (keccak256(abi.encodePacked(groups[i].name)) == keccak256(abi.encodePacked(name)) &&
-keccak256(abi.encodePacked(groups[i].description)) == keccak256(abi.encodePacked(description))) {
-groupToJoin = Group({
-name: name,
-description: description,
-groupOwner: groups[i].groupOwner
-});
-groupExists = true;
-break;
+	if (keccak256(abi.encodePacked(groups[i].name)) == keccak256(abi.encodePacked(name)) &&
+	keccak256(abi.encodePacked(groups[i].description)) == keccak256(abi.encodePacked(description))) {
+		groupToJoin = Group({
+		name: name,
+		description: description,
+		groupOwner: groups[i].groupOwner
+	});
+	groupExists = true;
+	break;
+	}
 }
-}
+
 Group[] memory userGroups = addressToGroupsJoined[msg.sender]; 
 for(uint256 a = 0; a < userGroups.length; a++){
-if(keccak256(abi.encodePacked(userGroups[a].name)) == keccak256(abi.encodePacked(name)) &&
-keccak256(abi.encodePacked(userGroups[a].description)) == keccak256(abi.encodePacked(description))){
-revert UserCantJoinAGropWhenHeIsAlreadyIn(); 
+	if(keccak256(abi.encodePacked(userGroups[a].name)) == keccak256(abi.encodePacked(name)) &&
+		keccak256(abi.encodePacked(userGroups[a].description)) == keccak256(abi.encodePacked(description))){
+		revert UserCantJoinAGropWhenHeIsAlreadyIn(); 
+		}
+	{
 }
-{
 }
-}
+
 require(groupExists, "Group does not exist");
 addressToGroupsJoined[msg.sender].push(groupToJoin);
 groupsToUsersIn[name].push(msg.sender); 
@@ -355,16 +348,17 @@ emit UserJoinedGroup(msg.sender, name);
 function leaveGroup(string memory name)public{
 removeUserFromTheGroupList(name);
 for(uint256 i = 0; i < addressToGroupsJoined[msg.sender].length; i++){
-if(keccak256(abi.encodePacked(addressToGroupsJoined[msg.sender][i].name)) == keccak256(abi.encodePacked(name))){
-delete addressToGroupsJoined[msg.sender][i]; 
-if(i < addressToGroupsJoined[msg.sender].length - 1){
-uint256 lastIndex = addressToGroupsJoined[msg.sender].length - 1;
-addressToGroupsJoined[msg.sender][i] = addressToGroupsJoined[msg.sender][lastIndex]; 
+	if(keccak256(abi.encodePacked(addressToGroupsJoined[msg.sender][i].name)) == keccak256(abi.encodePacked(name))){
+		delete addressToGroupsJoined[msg.sender][i]; 
+		if(i < addressToGroupsJoined[msg.sender].length - 1){
+			uint256 lastIndex = addressToGroupsJoined[msg.sender].length - 1;
+			addressToGroupsJoined[msg.sender][i] = addressToGroupsJoined[msg.sender][lastIndex]; 
+		}
+		addressToGroupsJoined[msg.sender].pop(); 
+		return; 
+	}
 }
-addressToGroupsJoined[msg.sender].pop(); 
-return; 
-}
-}
+
 revert UserCantLeaveGroup(msg.sender, name); 
 }
 
@@ -374,15 +368,15 @@ revert UserCantLeaveGroup(msg.sender, name);
 //*
 function removeUserFromTheGroupList(string memory name)internal{
 for(uint256 a = 0; a < groupsToUsersIn[name].length; a++){
-if(keccak256(abi.encodePacked(groupsToUsersIn[name][a])) == keccak256(abi.encodePacked(msg.sender))){
-delete groupsToUsersIn[name][a]; 
-if(a < groupsToUsersIn[name].length  - 1){
-uint256 _lastIndex = groupsToUsersIn[name].length - 1; 
-groupsToUsersIn[name][a] = groupsToUsersIn[name][_lastIndex]; 
-}
-groupsToUsersIn[name].pop(); 
-return;
-}
+	if(keccak256(abi.encodePacked(groupsToUsersIn[name][a])) == keccak256(abi.encodePacked(msg.sender))){
+		delete groupsToUsersIn[name][a]; 
+		if(a < groupsToUsersIn[name].length  - 1){
+			uint256 _lastIndex = groupsToUsersIn[name].length - 1; 
+			groupsToUsersIn[name][a] = groupsToUsersIn[name][_lastIndex]; 
+		}
+	groupsToUsersIn[name].pop(); 
+	return;
+	}
 }
 }
 
@@ -393,19 +387,20 @@ return;
 function sendMessagesInAGroup(string memory groupToSendMessagges, string memory _newMessage) public {
 bool groupExists = false;
 for (uint256 i = 0; i < addressToGroupsJoined[msg.sender].length; i++) {
-if (keccak256(abi.encodePacked(addressToGroupsJoined[msg.sender][i].name)) == keccak256(abi.encodePacked(groupToSendMessagges))) {
-GroupMessages memory newMessageInsideTheGroup = GroupMessages({
-groupName: groupToSendMessagges,
-sender: msg.sender,
-messages: _newMessage
-});
-groupsToMessagesInside[groupToSendMessagges].push(newMessageInsideTheGroup);
-groupExists = true;
-break;
+	if (keccak256(abi.encodePacked(addressToGroupsJoined[msg.sender][i].name)) == keccak256(abi.encodePacked(groupToSendMessagges))) {
+		GroupMessages memory newMessageInsideTheGroup = GroupMessages({
+		groupName: groupToSendMessagges,
+		sender: msg.sender,
+		messages: _newMessage
+		});
+		groupsToMessagesInside[groupToSendMessagges].push(newMessageInsideTheGroup);
+		groupExists = true;
+		break;
+	}
 }
-}
+
 if (!groupExists) {
-revert CantSendMessageInTheGroup();
+	revert CantSendMessageInTheGroup();
 }
 }
 
@@ -415,14 +410,15 @@ revert CantSendMessageInTheGroup();
 function modifyMessageInTheGroup(string memory groupToModifyMessage, string memory messageToBeModified,string memory _newMessage)public{
 bool success = false; 
 for(uint256 i = 0; i < groupsToMessagesInside[groupToModifyMessage].length; i++){
-if(keccak256(abi.encodePacked(groupsToMessagesInside[groupToModifyMessage][i].messages)) == keccak256(abi.encodePacked(messageToBeModified))){
-groupsToMessagesInside[groupToModifyMessage][i].messages= _newMessage; 
-success = true; 
-break; 
+	if(keccak256(abi.encodePacked(groupsToMessagesInside[groupToModifyMessage][i].messages)) == keccak256(abi.encodePacked(messageToBeModified))){
+		groupsToMessagesInside[groupToModifyMessage][i].messages= _newMessage; 
+		success = true; 
+		break; 
+	}
 }
-}
+
 if(success == false){
-revert("Cant modify the message in the group"); 
+	revert("Cant modify the message in the group"); 
 }
 }
 
@@ -433,20 +429,21 @@ revert("Cant modify the message in the group");
 function deleteMessageInTheGroup(string memory groupToDeleteMessage, string memory messageToBeDeleted)public{
 bool success = false; 
 for(uint256 i = 0; i < groupsToMessagesInside[groupToDeleteMessage].length; i++){
-if(keccak256(abi.encodePacked(groupsToMessagesInside[groupToDeleteMessage][i].messages)) == keccak256(abi.encodePacked(messageToBeDeleted))){
-require(keccak256(abi.encodePacked(groupsToMessagesInside[groupToDeleteMessage][i].sender)) == keccak256(abi.encodePacked(msg.sender))); 
-delete groupsToMessagesInside[groupToDeleteMessage][i]; 
-if(i < groupsToMessagesInside[groupToDeleteMessage].length - 1){
-uint256 lastIndex = groupsToMessagesInside[groupToDeleteMessage].length - 1; 
-groupsToMessagesInside[groupToDeleteMessage][i] = groupsToMessagesInside[groupToDeleteMessage][lastIndex]; 
+	if(keccak256(abi.encodePacked(groupsToMessagesInside[groupToDeleteMessage][i].messages)) == keccak256(abi.encodePacked(messageToBeDeleted))){
+		require(keccak256(abi.encodePacked(groupsToMessagesInside[groupToDeleteMessage][i].sender)) == keccak256(abi.encodePacked(msg.sender))); 
+		delete groupsToMessagesInside[groupToDeleteMessage][i]; 
+		if(i < groupsToMessagesInside[groupToDeleteMessage].length - 1){
+			uint256 lastIndex = groupsToMessagesInside[groupToDeleteMessage].length - 1; 
+			groupsToMessagesInside[groupToDeleteMessage][i] = groupsToMessagesInside[groupToDeleteMessage][lastIndex]; 
+		}
+	groupsToMessagesInside[groupToDeleteMessage].pop(); 
+	success = true; 
+	return; 
+	}
 }
-groupsToMessagesInside[groupToDeleteMessage].pop(); 
-success = true; 
-return; 
-}
-}
+
 if(success == false){
-revert("Cant delete the message"); 
+	revert("Cant delete the message"); 
 }
 }
 
