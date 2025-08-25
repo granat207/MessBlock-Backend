@@ -7,13 +7,13 @@ pragma solidity ^0.8.7;
 contract MessBlockGroups {
 
     /// @notice Thrown when a user attempts to send a message in a group they are not part of.
-    error CantSendMessageInTheGroup(address user, uint256 id); 
+    error UserIsNotInAGroup(address user, uint256 id); 
 
     /// @notice Thrown when a user who is not the owner attempts to manage the group.
-    error SenderIsNotTheOwnerOfTheGroup();
+    error SenderIsNotTheOwnerOfTheGroup(address user, uint256 id);
 
     /// @notice Thrown when a user attempts to join a group they are already in.
-    error UserCantJoinAGropWhenHeIsAlreadyIn(uint256 id); 
+    error UserIsAlreadyInAGroup(uint256 id); 
 
     /// @notice Thrown when a group does not exist.
     error GroupDoesNotExist(uint256 id);  
@@ -29,6 +29,11 @@ contract MessBlockGroups {
     /// @param user The address of the user who joined.
     /// @param id The ID of the group joined.
     event UserJoinedGroup(address user, uint256 id); 
+
+    /// @notice Emitted when a user left a group.
+    /// @param user The address of the user who left.
+    /// @param id The ID of the group left.
+    event UserLeftGroup(address user, uint256 id);
 
     /// @notice Emitted when a message is sent in a group.
     /// @param user The address of the sender.
@@ -71,7 +76,7 @@ contract MessBlockGroups {
     mapping(uint256 => address[]) internal idToUsersWhoJoined; 
 
     /// @notice Tracks membership status for each user in a group.
-    mapping(address => mapping(uint256 => bool)) internal isInGroup;
+    mapping(address => mapping(uint256 => bool)) public isInGroup;
 
     /// @notice Ensures the group exists.
     /// @param id The group ID.
@@ -86,7 +91,7 @@ contract MessBlockGroups {
     /// @param id The group ID.
     modifier notAlreadyInTheGroup(uint256 id) {
         if(isInGroup[msg.sender][id]) {
-            revert UserCantJoinAGropWhenHeIsAlreadyIn(id);
+            revert UserIsAlreadyInAGroup(id);
         }
         _;
     }
@@ -95,7 +100,7 @@ contract MessBlockGroups {
     /// @param id The group ID.
     modifier alreadyInTheGroup(uint256 id) {
         if(!isInGroup[msg.sender][id]) {
-            revert CantSendMessageInTheGroup(msg.sender, id);
+            revert UserIsNotInAGroup(msg.sender, id);
         }
         _;
     }
@@ -104,6 +109,7 @@ contract MessBlockGroups {
     /// @param name The group name.
     /// @param description The group description.
     function createGroup(string memory name, string memory description) external {
+        require(bytes(name).length > 0, "Group name can't be empty");
         Group memory newGroup = Group(name, description, msg.sender, groupId);
         groups.push(newGroup);
         idToGroupData[groupId] = newGroup;
@@ -140,6 +146,7 @@ contract MessBlockGroups {
     /// @param id The group ID.
     function leaveGroup(uint256 id) external alreadyInTheGroup(id){
         isInGroup[msg.sender][id] = false;
+        emit UserLeftGroup(msg.sender, id);
     }
 
     /// @notice Allows the group owner to change group metadata.
@@ -148,7 +155,7 @@ contract MessBlockGroups {
     /// @param newDescription New description for the group.
     function changeGroupNameAndDescription(uint256 id, string memory newName, string memory newDescription) external {
         if(groups[id].owner != msg.sender){
-            revert SenderIsNotTheOwnerOfTheGroup();
+            revert SenderIsNotTheOwnerOfTheGroup(msg.sender, id);
         }
         groups[id].name = newName; 
         groups[id].description = newDescription;
@@ -157,29 +164,29 @@ contract MessBlockGroups {
         idToGroupData[id].description = newDescription;
     }
 
+    /// @notice Returns all existing groups.
+    /// @return Array of groups.
+    function getGroups() external view returns(Group[] memory){
+        return groups;
+    }
+
     /// @notice Returns the list of users who joined a group.
     /// @param id The group ID.
     /// @return Array of user addresses.
-    function returnUsersWhoJoinedAgroup(uint256 id) external view returns(address[] memory){
+    function getUsersWhoJoinedAgroup(uint256 id) external view returns(address[] memory){
         return idToUsersWhoJoined[id]; 
-    }
-
-    /// @notice Returns all existing groups.
-    /// @return Array of groups.
-    function returnGroups() external view returns(Group[] memory){
-        return groups;
     }
 
     /// @notice Returns all groups joined by the sender.
     /// @return Array of group IDs.
-    function returnJoinedGroups() external view returns(uint256[] memory){
+    function getJoinedGroups() external view returns(uint256[] memory){
         return addressToGroupsJoined[msg.sender];
     }
 
     /// @notice Returns all messages of a group.
     /// @param id The group ID.
     /// @return Array of group messages.
-    function returnGroupMessages(uint256 id) external view returns(GroupMessages[] memory){
+    function getGroupMessages(uint256 id) external view returns(GroupMessages[] memory){
         return idToGroupMessages[id];
     }
 }

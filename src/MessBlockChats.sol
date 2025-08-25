@@ -90,14 +90,14 @@ contract MessBlockChats {
 
     /// @notice Returns all chats of the sender.
     /// @return Array of addresses representing chat partners.
-    function returnUserChats() external view returns(address[] memory){
+    function getUserChats() external view returns(address[] memory){
         return addressToChats[msg.sender]; 
     }
 
     /// @notice Returns the chat history between sender and another user.
     /// @param hash The bytes chatKey of the two user addresses.
     /// @return Array of chat messages.
-    function returnChat(bytes memory hash) external view returns(ChatMessage[] memory){
+    function getChat(bytes memory hash) external view returns(ChatMessage[] memory){
         return messages[hash]; 
     }
 
@@ -105,7 +105,7 @@ contract MessBlockChats {
     /// @param userA First user address.
     /// @param userB Second user address.
     /// @return Encoded chatKey (bytes).
-    function returnChatKey(address userA, address userB) external view returns(bytes memory) {
+    function getChatKey(address userA, address userB) external view returns(bytes memory) {
         return chatKey[userA][userB];
     }
 }
