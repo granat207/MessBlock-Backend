@@ -29,7 +29,12 @@ jobs:
           forge build --sizes
         id: build
 
-      #- name: Run Forge tests
-      #  run: |
-      #    forge test -vvv
-      #  id: test
+      - name: Run Forge tests
+        run: |
+          forge test -vvv
+        id: test
+
+      - name: Run Forge coverage
+        run: |
+          forge test coverage
+        id: coverage
