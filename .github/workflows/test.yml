@@ -36,5 +36,5 @@ jobs:
 
       - name: Run Forge coverage
         run: |
-          forge test coverage
+          forge coverage
         id: coverage
