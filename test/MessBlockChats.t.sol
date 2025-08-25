@@ -19,11 +19,11 @@ contract MessBlockChatsTest is Test {
     function test_canCreateChat() public {
         vm.startPrank(david);
         messBlock.createChat(bob); 
-        address[] memory chats = messBlock.returnUserChats();
+        address[] memory chats = messBlock.getUserChats();
         assertEq(chats[0], bob);
-		bytes memory chatHash_david_bob = messBlock.returnChatKey(david, bob);
+		bytes memory chatHash_david_bob = messBlock.getChatKey(david, bob);
 		assertNotEq(chatHash_david_bob.length, 0);
-		bytes memory chatHash_bob_david = messBlock.returnChatKey(bob, david);
+		bytes memory chatHash_bob_david = messBlock.getChatKey(bob, david);
 		assertNotEq(chatHash_bob_david.length, 0);
         vm.stopPrank();
     }
@@ -38,7 +38,7 @@ contract MessBlockChatsTest is Test {
 
     function test_cantCreateChat_CantCreateAChatWithHimself() public {
         vm.startPrank(david);
-        vm.expectRevert(MessBlockChats.CantCreateAChatWithHimself.selector);
+        vm.expectRevert(MessBlockChats.CantCreateAChatWithSelf.selector);
         messBlock.createChat(david); 
         vm.stopPrank();
     }
@@ -48,16 +48,16 @@ contract MessBlockChatsTest is Test {
         vm.startPrank(david);
         messBlock.createChat(bob); 
         messBlock.sendMessage(bob, "Hello Bob!"); 
-        bytes memory chatHash = messBlock.returnChatKey(david, bob);
-        MessBlockChats.ChatMessage[] memory chat = messBlock.returnChat(chatHash);
+        bytes memory chatHash = messBlock.getChatKey(david, bob);
+        MessBlockChats.ChatMessage[] memory chat = messBlock.getChat(chatHash);
         assertEq(chat[0].from, david);
         assertEq(chat[0].message, "Hello Bob!");
         vm.stopPrank();
 
         vm.startPrank(bob);
         messBlock.sendMessage(david, "Hello David!"); 
-        chatHash = messBlock.returnChatKey(david, bob);
-        chat = messBlock.returnChat(chatHash);
+        chatHash = messBlock.getChatKey(david, bob);
+        chat = messBlock.getChat(chatHash);
         assertEq(chat[1].from, bob);
         assertEq(chat[1].message, "Hello David!");
         vm.stopPrank();
